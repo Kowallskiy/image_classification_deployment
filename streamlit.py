@@ -25,6 +25,7 @@ def load_model(path):
 
 def transform_image(image, device):
     transform = A.Compose([
+        A.Resize(224, 224),
         A.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
         ToTensorV2()
     ])
@@ -85,8 +86,7 @@ def main():
         if result['result'] == 'unknown':
             st.write("The class is of unknown origin")
             st.write(f"The energy is {result['energy']:.4f}, but the energy threshold is {ENERGY_THRESHOLD:.4f}")
-            st.write(f"Probability: {result['probability']:.4f}")
-            st.write(f"Predicted class: {class_idx_to_name_dict[result['predicted_class']]}")
+            st.write(f"Potentially it could be this class: {class_idx_to_name_dict[result['predicted_class']]} with the probability {result['probability']:.4f}")
         else:
             st.write(f"Probability: {result['probability']:.4f}")
             st.write(f"Predicted class: {class_idx_to_name_dict[result['predicted_class']]}")
