@@ -1,0 +1,29 @@
+,name,disease,pesticide,non-pesticide,maintenance
+0,cucumber,Anthracnose_Fungi,"Fungicides: Apply fungicides such as chlorothalonil, mancozeb, or copper-based fungicides. Follow label instructions for timing and application rates.","Crop Rotation: Avoid planting cucumbers in the same location for at least 2-3 years.
+Resistant Varieties: Plant resistant cucumber varieties if available.
+Sanitation: Remove and destroy infected plant debris to reduce sources of infection.
+Mulching: Use mulch to prevent soil from splashing onto leaves, which can spread the fungus.",
+1,cucumber,Bacterial_Wilt_Bacteria,"Insecticides: Control cucumber beetles, which spread the bacteria, with insecticides like pyrethroids or carbaryl.","Resistant Varieties: Use resistant cucumber varieties if available.
+Physical Barriers: Use row covers to prevent cucumber beetles from accessing the plants.
+Sanitation: Remove and destroy infected plants promptly to reduce the spread of bacteria.
+Weed Control: Maintain good weed control, as weeds can harbor cucumber beetles.",
+2,cucumber,Belly_Rot_Fungi,"Fungicides: Apply fungicides such as chlorothalonil or copper-based products, particularly during wet weather.","Well-Drained Soil: Ensure good drainage to prevent water from accumulating around the base of plants.
+Mulching: Use organic mulch to keep fruits off the soil and reduce moisture.
+Irrigation: Water plants at the base rather than overhead to keep foliage dry.",
+3,cucumber,Downy_Mildew_Fungi,"Fungicides: Apply fungicides such as fosetyl-Al, mefenoxam, or chlorothalonil. Rotate fungicides to avoid resistance.","Resistant Varieties: Plant resistant cucumber varieties.
+Air Circulation: Ensure good air circulation by spacing plants properly.
+Sanitation: Remove and destroy infected leaves to reduce spread.",
+4,cucumber,Gummy_Stem_Blight_Fungi,"Fungicides: Use fungicides such as chlorothalonil, mancozeb, or copper-based products. Apply at regular intervals.","Crop Rotation: Rotate crops to avoid planting cucumbers in the same spot for several years.
+Sanitation: Remove and destroy plant debris and infected plants.
+Irrigation: Avoid overhead watering to reduce leaf wetness.",
+5,cucumber,Healthy_Crop_Cucumber,,,"Maintenance tips:
+- Regularly monitor for pests and diseases.
+- Use balanced fertilizers to maintain soil fertility.
+- Practice good sanitation and crop rotation to keep the soil healthy."
+6,cucumber,Healthy_Crop_Leaf,,,"Maintenance tips:
+- Ensure proper spacing for air circulation.
+- Regularly inspect for signs of disease or pests.
+- Apply organic fertilizers to support healthy leaf growth."
+7,cucumber,Pythium_Fruit_Rot_Fungi,"Fungicides: Apply fungicides such as metalaxyl or mefenoxam, following label instructions.","Well-Drained Soil: Improve soil drainage to prevent waterlogged conditions.
+Resistant Varieties: Plant resistant cucumber varieties if available.
+Sanitation: Remove and destroy infected plants and debris.",

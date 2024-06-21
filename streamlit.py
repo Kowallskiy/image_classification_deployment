@@ -3,7 +3,9 @@ import albumentations as A
 from albumentations.pytorch import ToTensorV2
 from PIL import Image
 import numpy as np
+import pandas as pd
 import torch
+import os
 
 ENERGY_THRESHOLD = -3.038491129875183
 
@@ -18,10 +20,25 @@ class_idx_to_name_dict = {
     7: "Pythium_Fruit_Rot_Fungi"
 }
 
+general_recommendations = """
+General Recommendations for Cucumber Plants:
+- **Soil Preparation**: Ensure well-drained, fertile soil with a pH of 6.0 to 6.8.
+- **Watering**: Water cucumbers consistently, aiming for 1-2 inches of water per week. Use drip irrigation or soaker hoses to keep foliage dry and reduce disease risk.
+- **Fertilization**: Apply balanced fertilizers (such as 10-10-10) before planting and side-dress with nitrogen during the growing season.
+- **Mulching**: Use organic mulch to conserve moisture, reduce weeds, and keep fruits clean.
+- **Pest and Disease Monitoring**: Regularly inspect plants for signs of pests and diseases. Early detection is key to managing issues effectively.
+- **Support and Spacing**: Use trellises or cages to support cucumber vines and ensure good air circulation by spacing plants appropriately.
+- **Harvesting**: Pick cucumbers regularly to encourage continuous production. Harvest when fruits are firm and of desired size.
+"""
+
 def load_model(path):
     model = torch.load(path)
     model.eval()
     return model
+
+def load_recommendations(path):
+    recommendations = pd.read_csv(path)
+    return recommendations
 
 def transform_image(image, device):
     transform = A.Compose([
@@ -66,30 +83,58 @@ def inference(model, image, device):
             'probability': probability_value,
             'predicted_class': predicted_class_value
         }
+    
+def classify_image(image):
+    model_path = "resnet50_cucumber.pth"
+    model = load_model(path=model_path)
+    device = torch.device("cuda" if torch.cuda.is_available() else 'cpu')
+    model.to(device)
+    result = inference(model, image, device)
+    rec_path = "recommendations.csv"
+    recommendations = load_recommendations(rec_path)
+
+    if result['result'] == 'unknown':
+        st.write("The class is of unknown origin")
+        st.write(f"The energy is {result['energy']:.4f}, but the energy threshold is {ENERGY_THRESHOLD:.4f}")
+        st.write(f"Potentially it could be: {class_idx_to_name_dict[result['predicted_class']]} with the probability {result['probability']:.4f}")
+        st.write("General Recommendations for Cucumber:")
+        st.write(general_recommendations)
+    else:
+        st.write(f"Probability: {result['probability']:.4f}")
+        st.write(f"Predicted class: {class_idx_to_name_dict[result['predicted_class']]}")
+        if class_idx_to_name_dict[result['predicted_class']] not in ["Healthy_Crop_Cucumber", "Healthy_Crop_Leaf"]:
+            st.write("Recommendations")
+            st.write("Pesticide Methods:")
+            st.write(recommendations[recommendations['disease'] == class_idx_to_name_dict[result['predicted_class']]]['pesticide'])
+            st.write("Non-pesticide Methods:")
+            st.write(recommendations[recommendations['disease'] == class_idx_to_name_dict[result['predicted_class']]]['non-pesticide'])
+        else:
+            st.write(recommendations[recommendations['disease'] == class_idx_to_name_dict[result['predicted_class']]]['maintenance'])
 
 def main():
-    st.title("Image Classification for Cucumber")
+    st.title("Disease Detection for Cucumber")
+    st.write("Upload your image of cucumber or choose one of the example images below:")
+
+    example_images = os.listdir("examples")
+    cols = st.columns(len(example_images))
+    for i, example_image in enumerate(example_images):
+        with cols[i]:
+            if st.button(f"Use Example {i+1}"):
+                uploaded_file = example_image
+                image = Image.open(uploaded_file)
+                st.image(image, caption=f"Example {i+1}", use_column_width=True)
+                st.write("Detecting...")
+                classify_image(image)
 
     uploaded_file = st.file_uploader("Choose an image of cucumber...", type="jpg")
     if uploaded_file is not None:
         image = Image.open(uploaded_file)
         st.image(image, caption="Uploaded Image", use_column_width=True)
         st.write("")
-        st.write("Classifying...")
+        st.write("Detecting...")
+        classify_image(image)
 
-        model_path = "resnet50_cucumber.pth"
-        model = load_model(path=model_path)
-        device = torch.device("cuda" if torch.cuda.is_available() else 'cpu')
-        model.to(device)
-        result = inference(model, image, device)
-
-        if result['result'] == 'unknown':
-            st.write("The class is of unknown origin")
-            st.write(f"The energy is {result['energy']:.4f}, but the energy threshold is {ENERGY_THRESHOLD:.4f}")
-            st.write(f"Potentially it could be this class: {class_idx_to_name_dict[result['predicted_class']]} with the probability {result['probability']:.4f}")
-        else:
-            st.write(f"Probability: {result['probability']:.4f}")
-            st.write(f"Predicted class: {class_idx_to_name_dict[result['predicted_class']]}")
+        
 
 if __name__ == "__main__":
     main()
