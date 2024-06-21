@@ -21,7 +21,6 @@ class_idx_to_name_dict = {
 }
 
 general_recommendations = """
-General Recommendations for Cucumber Plants:
 - **Soil Preparation**: Ensure well-drained, fertile soil with a pH of 6.0 to 6.8.
 - **Watering**: Water cucumbers consistently, aiming for 1-2 inches of water per week. Use drip irrigation or soaker hoses to keep foliage dry and reduce disease risk.
 - **Fertilization**: Apply balanced fertilizers (such as 10-10-10) before planting and side-dress with nitrogen during the growing season.
@@ -116,15 +115,13 @@ def main():
     st.write("Upload your image of cucumber or choose one of the example images below:")
 
     example_images = os.listdir("examples")
-    cols = st.columns(len(example_images))
-    for i, example_image in enumerate(example_images):
-        with cols[i]:
-            if st.button(f"Use Example {i+1}"):
-                uploaded_file = example_image
-                image = Image.open(uploaded_file)
-                st.image(image, caption=f"Example {i+1}", use_column_width=True)
-                st.write("Detecting...")
-                classify_image(image)
+    example_images = [os.path.join("examples", img) for img in example_images]
+    selected_example = st.selectbox("Choose an example image:", ['None'] + example_images)
+    if selected_example != 'None':
+        image = Image.open(selected_example)
+        st.image(image, caption=f"Example {i+1}", use_column_width=True)
+        st.write("Detecting...")
+        classify_image(image)
 
     uploaded_file = st.file_uploader("Choose an image of cucumber...", type="jpg")
     if uploaded_file is not None:
