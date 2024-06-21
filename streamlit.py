@@ -119,7 +119,7 @@ def main():
     selected_example = st.selectbox("Choose an example image:", ['None'] + example_images)
     if selected_example != 'None':
         image = Image.open(selected_example)
-        st.image(image, caption=f"Example {i+1}", use_column_width=True)
+        st.image(image, caption="Selected Example Image", use_column_width=True)
         st.write("Detecting...")
         classify_image(image)
 
