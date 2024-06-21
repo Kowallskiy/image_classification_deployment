@@ -104,11 +104,11 @@ def classify_image(image):
         if class_idx_to_name_dict[result['predicted_class']] not in ["Healthy_Crop_Cucumber", "Healthy_Crop_Leaf"]:
             st.write("Recommendations")
             st.write("Pesticide Methods:")
-            st.write(recommendations[recommendations['disease'] == class_idx_to_name_dict[result['predicted_class']]]['pesticide'].item())
+            st.markdown(recommendations[recommendations['disease'] == class_idx_to_name_dict[result['predicted_class']]]['pesticide'].values[0])
             st.write("Non-pesticide Methods:")
-            st.write(recommendations[recommendations['disease'] == class_idx_to_name_dict[result['predicted_class']]]['non-pesticide'].item())
+            st.markdown(recommendations[recommendations['disease'] == class_idx_to_name_dict[result['predicted_class']]]['non-pesticide'].values[0])
         else:
-            st.write(recommendations[recommendations['disease'] == class_idx_to_name_dict[result['predicted_class']]]['maintenance'].item())
+            st.markdown(recommendations[recommendations['disease'] == class_idx_to_name_dict[result['predicted_class']]]['maintenance'].values[0])
 
 def main():
     st.title("Disease Detection for Cucumber")
