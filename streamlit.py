@@ -7,8 +7,10 @@ import pandas as pd
 import torch
 import os
 
+# The energy threshold calculated on all images from the training dataset
 ENERGY_THRESHOLD = -3.038491129875183
 
+# Mapping of prediction classes to their names
 class_idx_to_name_dict = {
     0: "Anthracnose_Fungi",
     1: "Bacterial_Wilt_Bacteria",
@@ -20,6 +22,7 @@ class_idx_to_name_dict = {
     7: "Pythium_Fruit_Rot_Fungi"
 }
 
+# Stores general recommendations in case the model decided an image is out-of-distribution
 general_recommendations = """
 - **Soil Preparation**: Ensure well-drained, fertile soil with a pH of 6.0 to 6.8.
 - **Watering**: Water cucumbers consistently, aiming for 1-2 inches of water per week. Use drip irrigation or soaker hoses to keep foliage dry and reduce disease risk.
@@ -30,16 +33,44 @@ general_recommendations = """
 - **Harvesting**: Pick cucumbers regularly to encourage continuous production. Harvest when fruits are firm and of desired size.
 """
 
-def load_model(path):
+def load_model(path: str) -> torch.nn.Module:
+    '''
+    Load a trained Pytorch model from a specified file path.
+
+    Args:
+        path (str): The file path to saved model.
+
+    Returns:
+        torch.nn.Module: The loaded Pytorch model
+    '''
     model = torch.load(path)
     model.eval()
     return model
 
-def load_recommendations(path):
+def load_recommendations(path: str) -> pd.DataFrame:
+    '''
+    Load a csv file containing recommendations from a specified file path.
+
+    Args:
+        path (str): The file path to the recommendations.
+
+    Returns:
+        pd.DataFrame: The loaded recommendations.
+    '''
     recommendations = pd.read_csv(path)
     return recommendations
 
-def transform_image(image, device):
+def transform_image(image: Image.Image, device: torch.device) -> torch.Tensor:
+    '''
+    Transform an image for model inference.
+
+    Args:
+        image (Image.Image): The input image to be transformed.
+        device (torch.device): The device to which image tensor will be moved.
+    
+    Returns:
+        torch.Tensor: Transformed image tensor.
+    '''
     transform = A.Compose([
         A.Resize(224, 224),
         A.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
@@ -49,15 +80,44 @@ def transform_image(image, device):
     image_tensor = torch.tensor(image).unsqueeze(0).to(device)
     return image_tensor
 
-def calculate_probability_and_predicted_class(output):
+def calculate_probability_and_predicted_class(output: torch.Tensor) -> tuple:
+    '''
+    Calculate probability and predicted class from the model.
+
+    Args:
+        output (torch.Tensor): The model's output tensor.
+
+    Returns:
+        A tuple, containing probability and preicted class.
+    '''
     p = torch.softmax(output, dim=1)
     probability, predicted_class = torch.max(p, 1)
     return probability, predicted_class
 
-def calculate_energy(output):
+def calculate_energy(output: torch.Tensor) -> torch.Tensor:
+    '''
+    Calculate the energy of the model's output for out-of-distribution detection.
+
+    Args:
+        output (torch.Tensor): The model's output tensor.
+
+    Returns:
+        torch.Tensor: The energy of the current output.
+    '''
     return -torch.logsumexp(output, dim=1)
 
-def inference(model, image, device):
+def inference(model: torch.nn.Module, image: Image.Image, device: torch.device) -> dict:
+    '''
+    Perfomrs inference on an input image using the specified model.
+
+    Args:
+        model (torch.nn.Module): The trained Pytorch model for making predictions.
+        image (Image.Image): The input image for inference.
+        device (torch.device): The device for computation.
+
+    Returns:
+        The dictionary containing the inference result.
+    '''
 
     image_tensor = transform_image(image, device)
 
@@ -83,7 +143,13 @@ def inference(model, image, device):
             'predicted_class': predicted_class_value
         }
     
-def classify_image(image):
+def classify_image(image: Image.Image):
+    '''
+    Classify the input image and display the results using Streamlit.
+
+    Args:
+        image (Image.Image): The image to be classified.
+    '''
     model_path = "resnet50_cucumber.pth"
     model = load_model(path=model_path)
     device = torch.device("cuda" if torch.cuda.is_available() else 'cpu')
@@ -104,6 +170,8 @@ def classify_image(image):
         if class_idx_to_name_dict[result['predicted_class']] not in ["Healthy_Crop_Cucumber", "Healthy_Crop_Leaf"]:
             st.write("Recommendations")
             st.write("Pesticide Methods:")
+            # This code can be read like this:
+            # recommendations['disease_name' == 'predicted_disease_name']['give_pesticide_recom']
             st.markdown(recommendations[recommendations['disease'] == class_idx_to_name_dict[result['predicted_class']]]['pesticide'].values[0])
             st.write("Non-pesticide Methods:")
             st.markdown(recommendations[recommendations['disease'] == class_idx_to_name_dict[result['predicted_class']]]['non-pesticide'].values[0])
@@ -111,6 +179,9 @@ def classify_image(image):
             st.markdown(recommendations[recommendations['disease'] == class_idx_to_name_dict[result['predicted_class']]]['maintenance'].values[0])
 
 def main():
+    '''
+    Main function to run the Streamlit app for cucumber dataset.
+    '''
     st.title("Disease Detection for Cucumber")
     st.write("Upload your image of cucumber or choose one of the example images below:")
 
@@ -129,9 +200,7 @@ def main():
         st.image(image, caption="Uploaded Image", use_column_width=True)
         st.write("")
         st.write("Detecting...")
-        classify_image(image)
-
-        
+        classify_image(image)  
 
 if __name__ == "__main__":
     main()
