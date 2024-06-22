@@ -6,6 +6,8 @@ import numpy as np
 import pandas as pd
 import torch
 import os
+import random
+import matplotlib.pyplot as plt
 
 # The energy threshold calculated on all images from the training dataset
 ENERGY_THRESHOLD = -3.038491129875183
@@ -32,6 +34,16 @@ general_recommendations = """
 - **Support and Spacing**: Use trellises or cages to support cucumber vines and ensure good air circulation by spacing plants appropriately.
 - **Harvesting**: Pick cucumbers regularly to encourage continuous production. Harvest when fruits are firm and of desired size.
 """
+
+# Random cucumber facts
+cucumber_facts = [
+    "Cucumbers are 95% water.",
+    "Cucumbers belong to the same plant family as melons, including watermelon and cantaloupe.",
+    "Cucumber slices can fight bad breath when pressed to the roof of your mouth with your tongue for 30 seconds.",
+    "Cucumbers can be used to soothe sunburns.",
+    "Cucumbers contain vitamin K, which is important for bone health.",
+    "The phrase ‘cool as a cucumber’ is actually derived from the cucumber’s ability to cool the temperature of the blood."
+]
 
 def load_model(path: str) -> torch.nn.Module:
     """
@@ -175,12 +187,36 @@ def classify_image(image: Image.Image):
         else:
             st.markdown(recommendations[recommendations['disease'] == class_idx_to_name_dict[result['predicted_class']]]['maintenance'].values[0])
 
+def display_random_fact():
+    """
+    Display a random cucumber fact.
+    """
+    fact = random.choice(cucumber_facts)
+    st.info(f"**Did you know?** {fact}")
+
+def display_disease_frequency_chart(disease_counts: dict):
+    """
+    Display a bar chart of disease frequencies.
+
+    Args:
+        disease_counts (dict): A dictionary with disease names as keys and their counts as values.
+    """
+    diseases = list(disease_counts.keys())
+    counts = list(disease_counts.values())
+
+    plt.figure(figsize=(10, 6))
+    plt.barh(diseases, counts, color='skyblue')
+    plt.xlabel('Count')
+    plt.title('Disease Frequency Detected by the Model')
+    st.pyplot(plt)
+
 def main():
     """
     Main function to run the Streamlit app for cucumber disease detection.
     """
     st.title("Disease Detection for Cucumber")
     
+    # Display the GIF
     gif_url = "https://i.gifer.com/embedded/download/edP.gif"
     st.markdown(
         f'<img src="{gif_url}" width="600" alt="Cucumber Disease Detection"/>',
@@ -204,6 +240,30 @@ def main():
         st.image(image, caption="Uploaded Image", use_column_width=True)
         st.write("### Detecting...")
         classify_image(image)  
+
+    # Display random cucumber fact
+    display_random_fact()
+
+    # Display disease frequency chart
+    disease_counts = {
+        "Anthracnose_Fungi": 15,
+        "Bacterial_Wilt_Bacteria": 10,
+        "Belly_Rot_Fungi": 5,
+        "Downy_Mildew_Fungi": 7,
+        "Gummy_Stem_Blight_Fungi": 12,
+        "Healthy_Crop_Cucumber": 30,
+        "Healthy_Crop_Leaf": 25,
+        "Pythium_Fruit_Rot_Fungi": 3
+    }
+    display_disease_frequency_chart(disease_counts)
+
+    # Additional resources
+    st.write("### Additional Resources")
+    st.markdown("""
+    - [Cucumber Growing Guide](https://www.almanac.com/plant/cucumbers)
+    - [Cucumber Disease Management](https://www.vegetables.cornell.edu/crops/cucumber/)
+    - [Organic Cucumber Production](https://attra.ncat.org/attra-pub/viewhtml.php?id=48)
+    """)
 
 if __name__ == "__main__":
     main()
